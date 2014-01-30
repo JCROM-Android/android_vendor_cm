@@ -1,5 +1,11 @@
 PRODUCT_BRAND ?= cyanogenmod
 
+PRODUCT_VERSION_MAJOR = 2
+PRODUCT_VERSION_MINOR = 2
+PRODUCT_VERSION_MAINTENANCE = 0
+
+JCROM_VERSION := JCROM-$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)
+
 SUPERUSER_EMBEDDED := true
 SUPERUSER_PACKAGE_PREFIX := com.android.settings.cyanogenmod.superuser
 
@@ -38,10 +44,10 @@ endif
 
 ifdef CM_NIGHTLY
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.rommanager.developerid=cyanogenmodnightly
+    ro.rommanager.developerid=jcromproject
 else
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.rommanager.developerid=cyanogenmod
+    ro.rommanager.developerid=jcromproject
 endif
 
 PRODUCT_BUILD_PROP_OVERRIDES += BUILD_UTC_DATE=0
@@ -263,7 +269,7 @@ ifdef CM_BUILDTYPE
     endif
 else
     # If CM_BUILDTYPE is not defined, set to UNOFFICIAL
-    CM_BUILDTYPE := UNOFFICIAL
+    CM_BUILDTYPE := JCROM
     CM_EXTRAVERSION :=
 endif
 
@@ -284,17 +290,17 @@ ifeq ($(CM_BUILDTYPE), RELEASE)
         endif
     endif
 else
-    ifeq ($(PRODUCT_VERSION_MINOR),0)
-        CM_VERSION := $(PRODUCT_VERSION_MAJOR)-$(shell date -u +%Y%m%d)-$(CM_BUILDTYPE)$(CM_EXTRAVERSION)-$(CM_BUILD)
-    else
-        CM_VERSION := $(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR)-$(shell date -u +%Y%m%d)-$(CM_BUILDTYPE)$(CM_EXTRAVERSION)-$(CM_BUILD)
-    endif
+    CM_VERSION := $(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)-$(shell LANG=en date -u +%Y%m%d)-$(CM_BUILD)$(CM_EXTRAVERSION)
+    CM_PACKAGE := $(CM_BUILDTYPE)-CM$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)-$(shell LANG=en date -u +%Y%m%d)-$(CM_BUILD)$(CM_EXTRAVERSION)
 endif
 
 PRODUCT_PROPERTY_OVERRIDES += \
+  ro.jcrom.version=$(JCROM_VERSION) \
   ro.cm.version=$(CM_VERSION) \
   ro.modversion=$(CM_VERSION) \
   ro.cmlegal.url=http://www.cyanogenmod.org/docs/privacy
+
+$(call inherit-product-if-exists, jcrom/common/common.mk)
 
 -include vendor/cm-priv/keys/keys.mk
 
